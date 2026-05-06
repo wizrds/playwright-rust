@@ -377,7 +377,7 @@ impl ChannelOwnerImpl {
     ///
     /// Subclasses should override this to handle specific events.
     pub fn on_event(&self, method: &str, params: Value) {
-        tracing::debug!(
+        tracing::trace!(
             "Event on {} ({}): {} -> {:?}",
             self.guid,
             self.type_name,

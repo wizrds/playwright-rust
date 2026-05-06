@@ -254,7 +254,7 @@ impl Connection {
     pub async fn send_message(&self, guid: String, method: String, params: Value) -> Result<Value> {
         let id = self.last_id.fetch_add(1, Ordering::SeqCst);
 
-        tracing::debug!(
+        tracing::trace!(
             "Sending message: id={}, guid='{}', method='{}'",
             id,
             guid,
@@ -273,17 +273,17 @@ impl Connection {
         };
 
         let request_value = serde_json::to_value(&request)?;
-        tracing::debug!("Request JSON: {}", request_value);
+        tracing::trace!("Request JSON: {}", request_value);
 
         match self.sender.lock().await.send(request_value).await {
-            Ok(()) => tracing::debug!("Message sent successfully, awaiting response"),
+            Ok(()) => tracing::trace!("Message sent successfully, awaiting response"),
             Err(e) => {
                 tracing::error!("Failed to send message: {:?}", e);
                 return Err(e);
             }
         }
 
-        tracing::debug!("Waiting for response to ID {}", id);
+        tracing::trace!("Waiting for response to ID {}", id);
         rx.await
             .map_err(|_| Error::ChannelClosed)
             .and_then(|result| result)
@@ -378,10 +378,10 @@ impl Connection {
     }
 
     async fn dispatch_internal(self: &Arc<Self>, message: Message) -> Result<()> {
-        tracing::debug!("Dispatching message: {:?}", message);
+        tracing::trace!("Dispatching message: {:?}", message);
         match message {
             Message::Response(response) => {
-                tracing::debug!("Processing response for ID: {}", response.id);
+                tracing::trace!("Processing response for ID: {}", response.id);
                 let callback = self
                     .callbacks
                     .lock()
@@ -440,8 +440,8 @@ impl Connection {
                 .ok_or_else(|| Error::ProtocolError("__create__ missing 'guid'".to_string()))?,
         );
 
-        tracing::debug!(
-            "DEBUG __create__: type={}, guid={}, parent_guid={}",
+        tracing::trace!(
+            "__create__: type={}, guid={}, parent_guid={}",
             type_name,
             object_guid,
             event.guid
@@ -495,8 +495,8 @@ impl Connection {
             parent.add_child(Arc::clone(&object_guid), object);
         }
 
-        tracing::debug!(
-            "DEBUG: Successfully created and registered object: type={}, guid={}",
+        tracing::trace!(
+            "Successfully created and registered object: type={}, guid={}",
             type_name,
             object_guid
         );
@@ -524,9 +524,9 @@ impl Connection {
             // Dispose object
             object.dispose(DisposeReason::Protocol);
 
-            tracing::debug!("Disposed object: guid={}", guid);
+            tracing::trace!("Disposed object: guid={}", guid);
         } else {
-            tracing::debug!("Ignoring __dispose__ for unknown object: guid={}", guid);
+            tracing::trace!("Ignoring __dispose__ for unknown object: guid={}", guid);
         }
 
         Ok(())
