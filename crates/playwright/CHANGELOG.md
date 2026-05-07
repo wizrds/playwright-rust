@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Security
+
+- Bumped transitive `openssl` from 0.10.78 to 0.10.79 to pick up the fix for [GHSA-xp3w-r5p5-63rr](https://github.com/advisories/GHSA-xp3w-r5p5-63rr) / [CVE-2026-42327](https://www.cve.org/CVERecord?id=CVE-2026-42327) — undefined behaviour in `X509Ref::ocsp_responders` for certificates with non-UTF-8 OCSP URLs. Affected the workspace `Cargo.lock` and the fuzz target's lockfile; both now resolve to 0.10.79+. We pull `openssl` transitively via `native-tls` (the default TLS feature); no public-API impact. Detected by Dependabot (alerts #15 / #16); `cargo audit` had not yet picked up the advisory at fix time.
+- Refreshed `supply-chain/imports.lock` exemptions for the bumped `openssl` and `openssl-sys` versions via `cargo vet regenerate exemptions`. `cargo vet`, `cargo audit`, `cargo deny check` all green post-bump.
+
 ### Breaking changes
 
 - **`Locator::aria_snapshot()` now takes `Option<AriaSnapshotOptions>`.** The Playwright 1.59 `ariaSnapshot` RPC accepts `mode` (Ai or Default), `track`, `depth`, and `timeout`; we now surface those through a struct passed to `aria_snapshot(...)`. To migrate, change `locator.aria_snapshot()` → `locator.aria_snapshot(None)`. The newly-added `Page::aria_snapshot(options)` lands in this release with the same shape, so it's not a migration concern there. See the matching entry under **Added** for the full motivation.
