@@ -483,13 +483,13 @@ mod tests {
         let driver_subdir = temp
             .path()
             .join("playwright-rust")
-            .join("1.59.1")
-            .join("playwright-1.59.1-linux");
+            .join("1.60.0")
+            .join("playwright-1.60.0-linux");
         std::fs::create_dir_all(driver_subdir.join("package")).unwrap();
         std::fs::write(driver_subdir.join("node"), b"").unwrap();
         std::fs::write(driver_subdir.join("package").join("cli.js"), b"").unwrap();
 
-        let (node, cli) = try_user_cache_driver_in(temp.path(), "1.59.1", "linux")
+        let (node, cli) = try_user_cache_driver_in(temp.path(), "1.60.0", "linux")
             .unwrap()
             .unwrap();
         assert!(node.exists());
@@ -499,7 +499,7 @@ mod tests {
     #[test]
     fn try_user_cache_driver_in_returns_none_when_absent() {
         let temp = tempfile::tempdir().unwrap();
-        let result = try_user_cache_driver_in(temp.path(), "1.59.1", "linux").unwrap();
+        let result = try_user_cache_driver_in(temp.path(), "1.60.0", "linux").unwrap();
         assert!(result.is_none());
     }
 
@@ -521,13 +521,13 @@ mod tests {
         let driver_subdir = temp
             .path()
             .join("playwright-rust")
-            .join("1.59.1")
-            .join("playwright-1.59.1-win32_x64");
+            .join("1.60.0")
+            .join("playwright-1.60.0-win32_x64");
         std::fs::create_dir_all(driver_subdir.join("package")).unwrap();
         std::fs::write(driver_subdir.join("node.exe"), b"").unwrap();
         std::fs::write(driver_subdir.join("package").join("cli.js"), b"").unwrap();
 
-        let (node, _cli) = try_user_cache_driver_in(temp.path(), "1.59.1", "win32_x64")
+        let (node, _cli) = try_user_cache_driver_in(temp.path(), "1.60.0", "win32_x64")
             .unwrap()
             .unwrap();
         assert!(

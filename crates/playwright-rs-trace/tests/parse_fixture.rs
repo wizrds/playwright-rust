@@ -121,7 +121,7 @@ fn unknown_event_via_synthetic_zip() {
     // never silently dropped. Build a minimal trace zip exercising
     // this without depending on the fixture content.
     let zip_bytes = build_synthetic_trace(&[
-        r#"{"type":"context-options","version":8,"browserName":"chromium","playwrightVersion":"1.59.1"}"#,
+        r#"{"type":"context-options","version":8,"browserName":"chromium","playwrightVersion":"1.60.0"}"#,
         r#"{"type":"future-thing-not-modelled","customField":42,"text":"hello"}"#,
     ]);
 
@@ -463,7 +463,7 @@ fn build_synthetic_network_zip(network_lines: &[&str]) -> Vec<u8> {
 
         zip.start_file("trace.trace", opts).expect("start trace");
         zip.write_all(
-            br#"{"type":"context-options","version":8,"browserName":"chromium","playwrightVersion":"1.59.1"}
+            br#"{"type":"context-options","version":8,"browserName":"chromium","playwrightVersion":"1.60.0"}
 "#,
         )
         .expect("write trace");
