@@ -9,6 +9,8 @@ and this crate adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-05-23
+
 ### Added
 
 - **`TraceReader` — open a Playwright trace zip, stream events, reassemble actions.**
@@ -49,3 +51,6 @@ and this crate adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.h
   the navigation produces a real `resource-snapshot` — to refresh
   the deterministic test fixture under `tests/fixtures/`. New
   `.cargo/config.toml` aliases `cargo xtask`.
+
+[Unreleased]: https://github.com/padamson/playwright-rust/compare/trace-v0.1.0...HEAD
+[0.1.0]: https://github.com/padamson/playwright-rust/releases/tag/trace-v0.1.0

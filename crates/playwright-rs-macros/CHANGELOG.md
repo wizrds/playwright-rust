@@ -10,6 +10,8 @@ and this crate adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-05-23
+
 ### Added
 
 - **`locator!()` macro** — compile-time-validated Playwright selector.
@@ -28,3 +30,6 @@ and this crate adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.h
   — see `tests/ui/README.md` for the workflow when extending coverage.
 
   Closes [#81](https://github.com/padamson/playwright-rust/issues/81).
+
+[Unreleased]: https://github.com/padamson/playwright-rust/compare/macros-v0.1.0...HEAD
+[0.1.0]: https://github.com/padamson/playwright-rust/releases/tag/macros-v0.1.0
