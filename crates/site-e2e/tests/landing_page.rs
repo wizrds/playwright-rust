@@ -66,6 +66,32 @@ async fn landing_page_boots_and_shows_hero() {
         .await
         .expect("hero title text");
 
+    // Install section advertises the current crate version.
+    let install = page.locator("#install").await;
+    expect(install.clone())
+        .to_be_visible()
+        .await
+        .expect("install section should render");
+    expect(install)
+        .to_contain_text("playwright-rs = \"0.13\"")
+        .await
+        .expect("install snippet should show the crate version");
+
+    // Python<->Rust comparison shows both sides.
+    let comparison = page.locator("#comparison").await;
+    expect(comparison.clone())
+        .to_be_visible()
+        .await
+        .expect("comparison section should render");
+    expect(comparison.clone())
+        .to_contain_text("sync_playwright")
+        .await
+        .expect("comparison should show the Python side");
+    expect(comparison)
+        .to_contain_text("Playwright::launch")
+        .await
+        .expect("comparison should show the Rust side");
+
     browser.close().await.ok();
     server.abort();
 }
