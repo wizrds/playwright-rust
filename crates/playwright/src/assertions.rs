@@ -1073,17 +1073,10 @@ fn build_mask_js(locators: &[Locator]) -> String {
     selectors.join("\n")
 }
 
-/// Animation control for screenshots
-///
-/// See: <https://playwright.dev/docs/api/class-locatorassertions#locator-assertions-to-have-screenshot-1>
+// `Animations` lives in the always-available screenshot module (shared with
+// `ScreenshotOptions`); the screenshot-diff assertions reuse it.
 #[cfg(feature = "screenshot-diff")]
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum Animations {
-    /// Allow animations to run normally
-    Allow,
-    /// Disable CSS animations and transitions before capturing
-    Disabled,
-}
+use crate::protocol::Animations;
 
 /// Options for screenshot assertions
 ///

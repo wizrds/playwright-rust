@@ -131,7 +131,7 @@ pub use screencast::{
     ActionPosition, ChapterOptions, OverlayId, Screencast, ScreencastFrame, ScreencastSize,
     ScreencastStartOptions, ShowActionsOptions, ShowOverlayOptions,
 };
-pub use screenshot::{ScreenshotClip, ScreenshotOptions, ScreenshotType};
+pub use screenshot::{Animations, Caret, Scale, ScreenshotClip, ScreenshotOptions, ScreenshotType};
 pub use select_option::SelectOption;
 pub use selectors::Selectors;
 pub use tap::{TapOptions, TapOptionsBuilder};

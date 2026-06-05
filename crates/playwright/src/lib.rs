@@ -281,9 +281,11 @@ pub use error::{Error, Result};
 // Re-export assertions API
 pub use assertions::{PageExpectation, expect, expect_page};
 
-// Screenshot-diff types are gated on the optional feature.
+// Screenshot-diff types are gated on the optional feature. (`Animations` is
+// always available via the protocol re-export below; it is shared with
+// ScreenshotOptions.)
 #[cfg(feature = "screenshot-diff")]
-pub use assertions::{Animations, ScreenshotAssertionOptions, ScreenshotAssertionOptionsBuilder};
+pub use assertions::{ScreenshotAssertionOptions, ScreenshotAssertionOptionsBuilder};
 
 // Re-export Playwright main entry point and browser API
 pub use protocol::{
@@ -319,7 +321,7 @@ pub use protocol::Position;
 pub use protocol::{FilePayload, SelectOption};
 
 // Re-export screenshot types
-pub use protocol::{ScreenshotClip, ScreenshotOptions, ScreenshotType};
+pub use protocol::{Animations, Caret, Scale, ScreenshotClip, ScreenshotOptions, ScreenshotType};
 
 // Re-export screencast types
 pub use protocol::{
