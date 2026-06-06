@@ -1448,6 +1448,29 @@ impl Frame {
         self.channel().send_no_result("dragAndDrop", params).await
     }
 
+    /// Drops files and/or data onto the element matched by `selector`.
+    ///
+    /// See: <https://playwright.dev/docs/api/class-locator#locator-drop>
+    pub(crate) async fn locator_drop(
+        &self,
+        selector: &str,
+        options: crate::protocol::DropOptions,
+    ) -> Result<()> {
+        let mut params = serde_json::json!({
+            "selector": selector,
+            "strict": true,
+        });
+
+        let opts_json = options.to_json();
+        if let Some(obj) = params.as_object_mut()
+            && let Some(opts_obj) = opts_json.as_object()
+        {
+            obj.extend(opts_obj.clone());
+        }
+
+        self.channel().send_no_result("drop", params).await
+    }
+
     /// Waits for the element to satisfy a state condition.
     ///
     /// Uses Playwright's `waitForSelector` RPC. The element state defaults to `visible`

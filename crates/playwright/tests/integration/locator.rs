@@ -1559,6 +1559,53 @@ async fn test_locator_drag_to() {
 }
 
 #[tokio::test]
+async fn test_locator_drop_data_and_file() {
+    use playwright_rs::{DropOptions, FilePayload};
+
+    let server = TestServer::start().await;
+    let (_pw, browser, page) = crate::common::setup().await;
+
+    page.goto(&format!("{}/external_drop.html", server.url()), None)
+        .await
+        .expect("Failed to navigate");
+
+    let zone = page.locator("#zone").await;
+    let result = page.locator("#result").await;
+
+    // Drop MIME-typed data; the zone reports what its DataTransfer received.
+    zone.drop(
+        DropOptions::builder()
+            .data("text/plain", "hello-drop")
+            .build(),
+    )
+    .await
+    .expect("drop data should succeed");
+    assert_eq!(
+        result.text_content().await.expect("result text"),
+        Some("text:hello-drop".to_string()),
+        "dropped data should reach the page's DataTransfer"
+    );
+
+    // Drop an in-memory file; the zone reports the dropped file name.
+    let file = FilePayload::builder()
+        .name("note.txt".to_string())
+        .mime_type("text/plain".to_string())
+        .buffer(b"hi".to_vec())
+        .build();
+    zone.drop(DropOptions::builder().file(file).build())
+        .await
+        .expect("drop file should succeed");
+    assert_eq!(
+        result.text_content().await.expect("result text"),
+        Some("file:note.txt".to_string()),
+        "dropped file should reach the page's DataTransfer"
+    );
+
+    browser.close().await.expect("Failed to close browser");
+    server.shutdown();
+}
+
+#[tokio::test]
 async fn test_locator_drag_to_with_options() {
     let server = TestServer::start().await;
     let (_pw, browser, page) = crate::common::setup().await;

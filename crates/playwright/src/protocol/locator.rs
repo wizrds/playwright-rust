@@ -86,6 +86,7 @@ impl_has_timeout!(
     crate::protocol::ScreenshotOptions,
     crate::protocol::TapOptions,
     crate::protocol::DragToOptions,
+    crate::protocol::DropOptions,
     crate::protocol::WaitForOptions,
 );
 use std::sync::Arc;
@@ -1544,6 +1545,36 @@ impl Locator {
                 &target.selector,
                 Some(self.with_timeout(options)),
             )
+            .await
+            .map_err(|e| self.wrap_error_with_selector(e))
+    }
+
+    /// Drops files and/or data onto this element (external drag-and-drop).
+    ///
+    /// Simulates dragging files or data from outside the page onto the element,
+    /// such as an upload drop zone, by dispatching `dragenter`/`dragover`/`drop`
+    /// with a synthetic `DataTransfer`. Set `files` and/or `data` on the
+    /// [`DropOptions`](crate::protocol::DropOptions). This is distinct from
+    /// [`drag_to`](Self::drag_to), which drags one element onto another within
+    /// the page.
+    ///
+    /// # Arguments
+    ///
+    /// * `options` - [`DropOptions`](crate::protocol::DropOptions) carrying the
+    ///   files / data to drop, plus optional `position` and `timeout`.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if:
+    /// - The element is not found within the timeout
+    /// - Actionability checks fail
+    /// - The protocol call fails (e.g. neither files nor data were provided)
+    ///
+    /// See: <https://playwright.dev/docs/api/class-locator#locator-drop>
+    #[tracing::instrument(level = "info", skip_all, fields(selector = %self.selector))]
+    pub async fn drop(&self, options: crate::protocol::DropOptions) -> Result<()> {
+        self.frame
+            .locator_drop(&self.selector, self.with_timeout(Some(options)))
             .await
             .map_err(|e| self.wrap_error_with_selector(e))
     }
