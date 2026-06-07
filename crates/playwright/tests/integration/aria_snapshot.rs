@@ -1,5 +1,5 @@
-use playwright_rs::expect;
 use playwright_rs::protocol::{AriaSnapshotMode, AriaSnapshotOptions};
+use playwright_rs::{expect, expect_page};
 
 #[tokio::test]
 async fn test_to_match_aria_snapshot_basic() {
@@ -149,6 +149,31 @@ async fn test_aria_snapshot_options_plumb_through() {
         depth_snapshot.len(),
         default_snapshot.len()
     );
+
+    browser.close().await.expect("Failed to close browser");
+}
+
+#[tokio::test]
+async fn test_page_to_match_aria_snapshot() {
+    let (_playwright, browser, page) = crate::common::setup().await;
+
+    page.set_content("<h1>Hello</h1><button>Click me</button>", None)
+        .await
+        .expect("Failed to set content");
+
+    // Page-level assertion (the 1.60 PageAssertions.toMatchAriaSnapshot),
+    // matching the whole document rooted at :root.
+    expect_page(&page)
+        .to_match_aria_snapshot("- heading \"Hello\" [level=1]\n- button \"Click me\"")
+        .await
+        .expect("page ARIA snapshot should match");
+
+    expect_page(&page)
+        .not()
+        .with_timeout(std::time::Duration::from_millis(500))
+        .to_match_aria_snapshot("- heading \"Goodbye\" [level=1]")
+        .await
+        .expect("page ARIA snapshot should not match wrong content");
 
     browser.close().await.expect("Failed to close browser");
 }

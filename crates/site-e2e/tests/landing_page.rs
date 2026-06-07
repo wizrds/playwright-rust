@@ -20,11 +20,11 @@ use std::net::SocketAddr;
 use std::path::{Path, PathBuf};
 
 use axum::Router;
-use playwright_rs::expect;
 use playwright_rs::protocol::{
     Animations, Page, Playwright, ScreenshotOptions, StartHarOptions, TracingStartOptions,
     TracingStopOptions,
 };
+use playwright_rs::{expect, expect_page};
 use tower_http::services::ServeDir;
 
 fn dist_dir() -> PathBuf {
@@ -127,6 +127,20 @@ async fn landing_page_works_as_advertised() {
         .to_have_attribute("href", "https://docs.rs/playwright-rs")
         .await
         .expect("the Docs button links to docs.rs");
+    // Accessibility guard: assert the page's key landmarks via the page-level
+    // ARIA snapshot (Playwright 1.60). Partial/template matching keeps it robust
+    // to unrelated copy changes while catching structural a11y regressions (the
+    // hero stops being a level-1 heading in a `banner`, a section heading loses
+    // its level, etc.).
+    expect_page(&page)
+        .to_match_aria_snapshot(
+            "- banner:\n  - heading \"Playwright for Rust\" [level=1]\n- heading \"Install\" [level=2]\n- heading \"What you get\" [level=2]",
+        )
+        .await
+        .expect("the page's accessibility landmarks are present");
+    // Publish the full accessibility tree as a downloadable receipt.
+    let aria_tree = page.aria_snapshot(None).await.expect("aria snapshot");
+    std::fs::write(receipts.join("aria-snapshot.txt"), aria_tree).expect("write aria receipt");
     shot(&page, &steps, "01.png", "#hero").await;
 
     // Step 2: switch the comparison language and assert the resulting state.

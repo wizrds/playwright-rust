@@ -1292,6 +1292,41 @@ impl PageExpectation {
         }
     }
 
+    /// Asserts that the page's accessibility tree matches the expected ARIA snapshot.
+    ///
+    /// The page-level counterpart of
+    /// [`Expectation::to_match_aria_snapshot`]; it matches the whole document
+    /// (rooted at `:root`). The `expected` string is a YAML representation of
+    /// the accessibility tree, and the Playwright server auto-retries within the
+    /// assertion timeout.
+    ///
+    /// # Example (in module-level doctest)
+    ///
+    /// ```ignore
+    /// expect_page(&page)
+    ///     .to_match_aria_snapshot("- heading \"Welcome\" [level=1]")
+    ///     .await?;
+    /// ```
+    ///
+    /// See: <https://playwright.dev/docs/api/class-pageassertions#page-assertions-to-match-aria-snapshot>
+    pub async fn to_match_aria_snapshot(self, expected: &str) -> Result<()> {
+        use crate::protocol::serialize_argument;
+
+        let timeout_ms = self.timeout.as_millis() as f64;
+        let expected_value = serialize_argument(&serde_json::Value::String(expected.to_string()));
+
+        let frame = self.page.main_frame().await?;
+        frame
+            .frame_expect(
+                ":root",
+                "to.match.aria",
+                expected_value,
+                self.negate,
+                timeout_ms,
+            )
+            .await
+    }
+
     /// Asserts that the page URL matches the expected string.
     ///
     /// Auto-retries until the URL matches or the timeout expires.
