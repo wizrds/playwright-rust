@@ -22,7 +22,8 @@ use std::path::{Path, PathBuf};
 use axum::Router;
 use playwright_rs::expect;
 use playwright_rs::protocol::{
-    Animations, Page, Playwright, ScreenshotOptions, TracingStartOptions, TracingStopOptions,
+    Animations, Page, Playwright, ScreenshotOptions, StartHarOptions, TracingStartOptions,
+    TracingStopOptions,
 };
 use tower_http::services::ServeDir;
 
@@ -97,6 +98,17 @@ async fn landing_page_works_as_advertised() {
         }))
         .await
         .expect("start trace");
+
+    // Also record a HAR of the run; published as a downloadable receipt so
+    // visitors can see exactly what the page loaded. Real network traffic, no
+    // contrived surface needed.
+    tracing
+        .start_har(
+            receipts.join("dogfood.har").to_string_lossy().into_owned(),
+            Some(StartHarOptions::default()),
+        )
+        .await
+        .expect("start HAR recording");
 
     let page = context.new_page().await.expect("new page");
     page.goto(&format!("http://{addr}"), None)
@@ -246,6 +258,9 @@ async fn landing_page_works_as_advertised() {
         .to_contain_text("Step 2 of 6")
         .await
         .expect("the walkthrough advances to the next step");
+
+    // Write the HAR receipt (every request the run made).
+    tracing.stop_har().await.expect("write HAR receipt");
 
     // Save the trace zip as the deep-dive receipt.
     tracing
