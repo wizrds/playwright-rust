@@ -51,6 +51,11 @@ pub struct StartHarOptions {
 
 impl StartHarOptions {
     /// Build the protocol `RecordHarOptions` object for the given output path.
+    ///
+    /// `harPath` is intentionally omitted: setting it makes the driver write its
+    /// own archive at that path (appending `.zip`), which would duplicate the
+    /// file we already produce via `harExport` + unzip in `stop_har`. The path
+    /// here only selects the default `content` mode.
     pub(crate) fn to_record_har_json(&self, path: &str) -> Value {
         let is_zip = path.ends_with(".zip");
         let content = self.content.unwrap_or(if is_zip {
@@ -60,7 +65,7 @@ impl StartHarOptions {
         });
         let mode = self.mode.unwrap_or(HarMode::Full);
 
-        let mut o = serde_json::json!({ "harPath": path });
+        let mut o = serde_json::json!({});
         o["content"] = serde_json::to_value(content).expect("serialize HarContent cannot fail");
         o["mode"] = serde_json::to_value(mode).expect("serialize HarMode cannot fail");
         if let Some(glob) = &self.url_filter {
@@ -80,9 +85,10 @@ mod tests {
     #[test]
     fn test_start_har_options_zip_defaults_to_attach() {
         let json = StartHarOptions::default().to_record_har_json("run.har.zip");
-        assert_eq!(json["harPath"], "run.har.zip");
         assert_eq!(json["content"], "attach");
         assert_eq!(json["mode"], "full");
+        // harPath is deliberately not sent (avoids the driver double-writing).
+        assert!(json.get("harPath").is_none());
     }
 
     #[test]
